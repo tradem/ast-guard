@@ -36,7 +36,7 @@ ast-guard is a **thin Rust orchestrator**, not a rewrite engine. Its core is a p
 
 Understand this before writing code:
 
-1. **Phase 1: Agent skill** (shipped — `docs/ast-guard-skills.md`). A Markdown prompt teaching agents to use `ast-grep` + `cargo check` directly. Validates demand.
+1. **Phase 1: Agent skill** (shipped — `ast-guard-skills/SKILL.md`). A Markdown prompt teaching agents to use `ast-grep` + `cargo check` directly. Validates demand.
 2. **Phase 2: Lightweight CLI** (this repo — under development). The thin orchestrator. Adds hard `--forbid` gates, structured diagnostics, re-parse gate. Not a platform — a pipeline wrapper.
 3. **Phase 3: Mature CLI** (conditional on Phase 2 demand). Rule-file support (`--rule-file <yaml>`), Python support, mutation-testing quality gates, CI-specific modes.
 

@@ -21,9 +21,9 @@ ast-guard is built in three phases, each validating demand before the next:
 
 ### Phase 1: Agent skill (ship today)
 
-A standalone [Markdown prompt](docs/ast-guard-skills.md) that teaches AI coding agents to use `ast-grep` (`sg scan`/`sg run`) + `cargo check --message-format=json` + manual straggler checks. No binary needed — just a 200-line document the agent reads.
+A standalone [Markdown skill prompt](ast-guard-skills/SKILL.md) that teaches AI coding agents to use `ast-grep` (`sg scan`/`sg run`) + `cargo check --message-format=json` + manual straggler checks. No binary needed — just a self-contained document the agent reads.
 
-**Deliverable:** `docs/ast-guard-skills.md` — a prompt that says "don't use sed for typed-language refactors; here's the ast-grep workflow."
+**Deliverable:** `ast-guard-skills/SKILL.md` — a prompt that says "don't use sed for typed-language refactors; here's the ast-grep workflow."
 
 ### Phase 2: Lightweight CLI (this repo)
 
@@ -39,6 +39,28 @@ The CLI is **not** a reimplementation of ast-grep. It is a pipeline orchestrator
 
 Expanded language support (Python, where `--require`/`--forbid` is the primary safety layer), rule-file support for complex ast-grep YAML rules (`inside`/`has`/`not`), CI-specific modes, and optional mutation-testing quality gates.
 
+## Installation
+
+### The Skill Prompt (Phase 1 — shipping now)
+
+The [agent skill](ast-guard-skills/SKILL.md) is a self-contained Markdown document that teaches AI coding agents the safe `ast-grep` + compiler workflow. No binary to install — just point your agent to the file.
+
+To set it up for your coding agent:
+
+| Agent | Setup |
+|---|---|
+| **pi-code** | Place `ast-guard-skills/SKILL.md` into `.pi/skills/ast-guard-skills/SKILL.md` (or reference via `AGENTS.md`). The agent will load it as a skill. |
+| **GitHub Copilot** | Add to `.github/copilot-instructions.md`: `Always read ast-guard-skills/SKILL.md before performing structural refactors. Follow its CRITICAL RULE and three-step workflow.` |
+| **Claude (Anthropic)** | Add to `CLAUDE.md` or `AGENTS.md`: `Before any refactoring task, consult ast-guard-skills/SKILL.md for the approved workflow. Never use sed/awk/Python scripts for typed-language refactors.` |
+| **OpenAI Codex** | Include the skill content as a system prompt snippet, or add a reference in your project's root `README.md` or `AGENTS.md`. |
+| **Google Gemini** | Reference the skill in project-level instructions or add to `GEMINI.md`: `Follow ast-guard-skills/SKILL.md for all structural code changes in Rust, C#, TypeScript, and Dart.` |
+
+The skill is designed to work as a standalone prompt — you can also copy its content directly into your agent's system prompt or project instructions.
+
+### The CLI (Phase 2 — under evaluation)
+
+The Rust CLI (`ast-guard refactor` / `ast-guard check` / `ast-guard init`) is currently being evaluated. It automates the skill's manual steps with hard safety gates and structured diagnostics. See the [Skill vs CLI](#skill-vs-cli) section for when to use which.
+
 ## Why not just use ast-grep directly?
 
 ast-grep (`sg scan`/`sg run`) handles pattern matching and rewriting. An agent *can* use it directly — and Phase 1 teaches exactly that. The CLI adds:
@@ -49,6 +71,21 @@ ast-grep (`sg scan`/`sg run`) handles pattern matching and rewriting. An agent *
 - **Standardized recovery.** `init` teaches the same git recovery playbook in every repo.
 
 For a single refactor, ast-grep + cargo-check is fine. For **hundreds of refactors per session** (the AI agent workflow), the token efficiency and enforced correctness of a single `ast-guard refactor` command is the difference between a clean migration and a silent straggler in production.
+
+## Skill vs CLI
+
+| Aspect | Skill (`ast-guard-skills/SKILL.md`) | CLI (`ast-guard`) |
+|---|---|---|
+| **What it is** | A Markdown prompt the agent reads and follows | A Rust binary that enforces the workflow |
+| **Setup** | None — point your agent to the file | `cargo install ast-guard` |
+| **Safety gates** | Advisory — the agent is *told* to check | Enforced — the CLI rejects bad writes |
+| **Straggler check** | Manual: `sg scan ... | jq '.count'` | Automatic: `--forbid <pattern>` |
+| **Compiler diagnostics** | Agent writes `jq` filters | Structured JSON parsed centrally |
+| **Re-parse gate** | Manual dry-run inspection | Automatic, always-on |
+| **When to use** | Single refactors, quick tasks, no binary available | Hundreds of refactors, batch workflows, CI pipelines |
+| **Token efficiency** | 5–6 commands per refactor | 1 command per refactor |
+
+> **The skill validates the workflow; the CLI enforces it.** Start with the skill. If you find yourself repeating the same validation steps across many refactors, the CLI will save you tokens and catch edge cases the manual workflow misses.
 
 ## Safety model (three tiers, cheapest first)
 
@@ -125,7 +162,7 @@ ast-guard check --lang typescript --dir ./packages --offline  # tsc --noEmit, no
 
 ### Phase 1: The skill (no binary needed)
 
-If the CLI isn't installed yet, use the [agent skill prompt](docs/ast-guard-skills.md):
+If the CLI isn't installed yet, use the [agent skill prompt](ast-guard-skills/SKILL.md):
 
 ```bash
 sg scan -p 'pattern' -l rust --json   # find matches
@@ -209,5 +246,5 @@ MIT — see [LICENSE](LICENSE).
 ## Status
 
 Phase 1 (agent skill) — shipping now.
-Phase 2 (lightweight CLI) — this repo, under development.
+Phase 2 (lightweight CLI) — this repo, under evaluation. A Rust CLI that automates the skill's manual steps with hard safety gates. Development is in progress; feedback from Phase 1 adoption will shape the final design.
 Phase 3 (mature CLI) — conditional on Phase 2 demand.
