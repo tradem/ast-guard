@@ -87,6 +87,30 @@ For a single refactor, ast-grep + cargo-check is fine. For **hundreds of refacto
 
 > **The skill validates the workflow; the CLI enforces it.** Start with the skill. If you find yourself repeating the same validation steps across many refactors, the CLI will save you tokens and catch edge cases the manual workflow misses.
 
+## Comparison with [ast-grep/agent-skill](https://github.com/ast-grep/agent-skill)
+
+[ast-grep/agent-skill](https://github.com/ast-grep/agent-skill) (by Herrington Darkholme, the author of ast-grep) is a Claude Code plugin that teaches AI agents how to write ast-grep rules for **structural code search**. It focuses on the *discovery* phase — finding code patterns by their AST structure — with a test-driven rule-writing workflow.
+
+ast-guard focuses on the **safe refactoring** workflow — the full DISCOVER → APPLY → VALIDATE loop with hard safety gates and compiler integration. The two projects are complementary, not competitive:
+
+| Capability | [ast-grep/agent-skill](https://github.com/ast-grep/agent-skill) | ast-guard Skill | ast-guard CLI |
+|---|---|---|---|
+| AST-based code search | ✅ (primary focus) | ✅ (via `sg`) | ✅ (embedded) |
+| Rule writing & debugging (`--debug-query`) | ✅ | ❌ | ❌ |
+| Automated rewriting (`--rewrite`) | ❌ | ✅ | ✅ |
+| Dry-run preview | ❌ | ✅ | ✅ |
+| Straggler detection | ❌ | ✅ (manual via `jq`) | ✅ (hard gate) |
+| Compiler validation | ❌ | ✅ (manual via `jq`) | ✅ (structured, central) |
+| Re-parse gate (tree-sitter ERROR detection) | ❌ | ❌ | ✅ |
+| `--require` / `--forbid` post-conditions | ❌ | ❌ | ✅ |
+| Git recovery workflow | ❌ | ✅ | ✅ (taught via `init`) |
+| Multi-language refactoring (Rust, C#, TS, Dart) | ❌ (search-only, any lang) | ✅ (full workflow) | ✅ (full workflow) |
+
+**When to use which:**
+- Use **[ast-grep/agent-skill](https://github.com/ast-grep/agent-skill)** when you need to write complex ast-grep rules for *finding* code patterns.
+- Use **ast-guard** when you need to *safely refactor* code with compiler-backed guarantees.
+- Use **both** together: ast-grep/agent-skill to craft precise search patterns, ast-guard to apply them safely with enforced post-conditions and compiler validation.
+
 ## Safety model (three tiers, cheapest first)
 
 ```
