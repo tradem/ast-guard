@@ -88,7 +88,7 @@
 - [ ] 11.2 Document the **structured diagnostics approach** (JSON/machine-readable, not stderr-regex) in README.
 - [ ] 11.3 Document auto-discovery of compile root (walk-up from `--dir` to `Cargo.toml`/`tsconfig.json`/`*.csproj`/`pubspec.yaml`).
 - [ ] 11.4 Add per-language `--require`/`--forbid` examples (Rust: rename with straggler check, C#: method migration, TypeScript: `console.log` → logger, Dart: widget tree refactor) to README.
-- [ ] 11.5 Write `ast-guard-skills.md` (Phase 1 agent skill) — a standalone Markdown prompt documenting the ast-grep + cargo-check workflow for agents that don't have the CLI installed. This is the Phase 1 deliverable, shipped alongside the README.
+- [x] 11.5 ~~Write `ast-guard-skills.md`~~ Moved to `extract-skill-phase1` change. The Phase 1 skill prompt (`ast-guard-skills.md`) is now owned by the `extract-skill-phase1` change at `openspec/changes/extract-skill-phase1/`. This CLI change (`compile-safe-refactor-cli`) focuses on Phase 2: the Rust CLI tool. The skill spec at `specs/skill/` has been removed (content relocated to `extract-skill-phase1/specs/skill-prompt/spec.md`). The skill file itself lives at the repo root as `ast-guard-skills.md`.
 
 ## 12. CI
 
